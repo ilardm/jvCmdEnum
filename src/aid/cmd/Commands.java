@@ -1,6 +1,10 @@
 package aid.cmd;
 
 public enum Commands {
+	/**
+	 * Available commands in shell.
+	 * 
+	 */
 	START("Start"), DATE("Date"), STOP("Stop"), HELP("Help");
 
 	private String cmd;

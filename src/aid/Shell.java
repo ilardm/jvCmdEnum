@@ -5,92 +5,128 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import aid.cmd.Commands;
 import aid.login.Login;
 
 public class Shell {
-	
+
 	private final String HELP = "Help - gives list of commands and description";
-	
+
 	private final String START = "Start - starts a new session";
-	
+
 	private final String DATE = "Date - gives a current date";
-	
+
 	private final String STOP = "Stop - closes a current session";
-	
-	private final List<String> listOfCommands;
-	
+
 	private String userCMD;
 
 	private BufferedReader reader;
 
 	private BufferedWriter writer;
-	
+
 	private String name;
-	
+
 	private String password;
 
+	/**
+	 * Initialize reader and writer. Initialize list of available commands with
+	 * their description
+	 */
+
 	public Shell() {
-		listOfCommands = Arrays.asList(HELP, START, DATE, STOP);
 		reader = new BufferedReader(new InputStreamReader(System.in));
 		writer = new BufferedWriter(new OutputStreamWriter(System.out));
 	}
-	
-	public void run(){
+
+	public void run() {
 		try {
 			writer.write("Welcome !");
 			writer.flush();
-			//
 			writer.write("Please enter your name\n");
 			writer.flush();
 			try {
 				name = reader.readLine();
-				writer.write("Please enter your password\n");
-				writer.flush();
+				writeToConsole("Please enter your password");
 				password = reader.readLine();
-				if(!authorize(name, password)){
+				if (!authorize(name, password)) {
 					System.exit(0);
 				}
-			} catch(Exception e) {
-				
+			} catch (Exception e) {
+				closeAll();
 			}
-			//
-			writer.write("Call a \"Help\" command");
-			writer.flush();
-			
-			userCMD = reader.readLine();
-			
-			if(userCMD.equals(Commands.HELP.getValue())){
-				for(String str : listOfCommands){
-					writeToConsole(str);
+			while (true) {
+				userCMD = reader.readLine();
+
+				if (userCMD.equals(Commands.HELP.getValue())) {
+					writeToConsole(HELP, START, DATE, STOP);
+					continue;
 				}
-				reader.close();
-				writer.close();
+				if (userCMD.equals(Commands.DATE.getValue())) {
+					Date date = new Date();
+					writeToConsole(date.toString());
+					continue;
+				}
+				if (userCMD.equals(Commands.START.getValue())) {
+					System.out.println("Start a process");
+					continue;
+				}
+				if (userCMD.equals(Commands.STOP.getValue())) {
+					closeAll();
+					break;
+				} else {
+					writeToConsole("Unknow command " + userCMD);
+					continue;
+				}
 			}
-			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			closeAll();
 			e.printStackTrace();
 		}
 	}
-	
-	private void writeToConsole(String text){
+
+	private void writeToConsole(String text) {
 		try {
-			writer.write(text);
+			writer.append(text);
+			writer.append("\n");
 			writer.flush();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			closeAll();
 			e.printStackTrace();
 		}
 	}
-	
-	private boolean authorize(String name, String password){
-		Login login = new Login(name, name);
+
+	private void writeToConsole(String... strings) throws IOException {
+		for (String str : strings) {
+			writer.append(str);
+			writer.append('\n');
+		}
+		writer.flush();
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @param password
+	 * @return true if name and password are correct
+	 */
+	private boolean authorize(String name, String password) {
+		Login login = new Login(name, password);
 		return login.validator();
+	}
+
+	private void closeAll() {
+		try {
+			reader.close();
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 }
