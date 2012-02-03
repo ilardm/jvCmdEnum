@@ -5,9 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import aid.cmd.Commands;
 import aid.login.Login;
@@ -44,23 +42,25 @@ public class Shell {
 
 	public void run() {
 		try {
-			writer.write("Welcome !");
-			writer.flush();
-			writer.write("Please enter your name\n");
-			writer.flush();
+			writeToConsole("Welcome !", "Please enter your name :");
 			try {
 				name = reader.readLine();
-				writeToConsole("Please enter your password");
+				writeToConsole("Please enter your password :");
 				password = reader.readLine();
 				if (!authorize(name, password)) {
 					System.exit(0);
 				}
 			} catch (Exception e) {
-				closeAll();
+				e.getMessage();
 			}
+			writeToConsole("######## " + name + " ########");
 			while (true) {
 				userCMD = reader.readLine();
 
+				if(userCMD == null){
+					writeToConsole("Your command is empty");
+					continue;
+				}
 				if (userCMD.equals(Commands.HELP.getValue())) {
 					writeToConsole(HELP, START, DATE, STOP);
 					continue;
@@ -78,7 +78,7 @@ public class Shell {
 					closeAll();
 					break;
 				} else {
-					writeToConsole("Unknow command " + userCMD);
+					writeToConsole("Unknow command " + "\"" + userCMD + "\"", "Please, correct your command.");
 					continue;
 				}
 			}
